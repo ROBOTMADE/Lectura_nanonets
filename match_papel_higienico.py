@@ -131,3 +131,23 @@ def procesar(df):
     #facturas.to_csv("facturas_modificado_v6.csv", sep =";")
     facturas.to_excel(f"Salida/{version_lectura}/match_PH.xlsx")
     return facturas
+
+def limpieza_final(df):
+    data_original = df
+    data_revisada = pd.read_excel("09-02-2023Match_Solr_New_Model_textos_procesados_match_Tiendas_TR_nuevo_ph_v2.xlsx",
+                                  index_col=None)
+    data_unida = data_original.merge(data_revisada, on="descripcion", how="left")
+
+    data_unida.loc[data_unida["Tipo"] == 1, "Descricion_tr_nuevo_match_ph"] = "No Encontrado"
+    data_unida.loc[data_unida["Tipo"] == 1, "Codigos_barra_tr_nuevo_match_ph"] = "No Encontrado"
+    data_unida.loc[data_unida["Tipo"] == 1, "Promociones_tr_nuevo_match_ph"] = "No Encontrado"
+
+    data_eliminada = data_unida[data_unida["Tipo"] != 2]
+
+    data_eliminada.loc[data_unida["Tipo"] == 3, "Descricion_tr_nuevo_match_ph"] = "Es de PH pero no identifico cual"
+    data_eliminada.loc[data_unida["Tipo"] == 3, "Codigos_barra_tr_nuevo_match_ph"] = "Es de PH pero no identifico cual"
+    data_eliminada.loc[data_unida["Tipo"] == 3, "Promociones_tr_nuevo_match_ph"] = "Es de PH pero no identifico cual"
+
+    data_eliminada.to_excel(f"Salida/{version_lectura}/Data_final.xlsx", index=None)
+
+    return data_eliminada

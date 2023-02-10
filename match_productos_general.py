@@ -12,6 +12,7 @@ def procesar(df):
     codigos_barra_mailsearch =[]
     textos=[]
     ids=[]
+
     for index, row in tqdm(facturas.iterrows(), total= facturas.shape[0]):
             bandera_continuar= True
             try:
@@ -47,19 +48,19 @@ def procesar(df):
 
                 descripcion_limpia = ' '.join(palabras_a_ordenar)
 
-                """
-                if len(palabra) < 3 and cantidad_palabras_cumplen < 3:
-                    palabras_a_ordenar.append(palabra)
-                    cantidad_palabras_cumplen +=1
-                elif cantidad_palabras_cumplen == 2:
-                    palabras_a_ordenar.extend(palabras_carry)
-                elif cantidad_palabras_cumplen < 3:
-                    palabras_carry.append(palabra)
-                else:
-                    palabras_a_ordenar.append(palabra)
-                    
-                descripcion_limpia = ' '.join(palabras_a_ordenar)
-                """
+            
+                # if len(palabra) < 3 and cantidad_palabras_cumplen < 3:
+                #     palabras_a_ordenar.append(palabra)
+                #     cantidad_palabras_cumplen +=1
+                # elif cantidad_palabras_cumplen == 2:
+                #     palabras_a_ordenar.extend(palabras_carry)
+                # elif cantidad_palabras_cumplen < 3:
+                #     palabras_carry.append(palabra)
+                # else:
+                #     palabras_a_ordenar.append(palabra)
+                #     
+                # descripcion_limpia = ' '.join(palabras_a_ordenar)
+                
                 for i , palabra in enumerate(descripcion_limpia.split()):
                     palabra_limpia = palabra.upper().strip()
                     for replace in replaces:
@@ -144,12 +145,28 @@ def procesar(df):
 
     facturas["texto_procesado"] = textos
     facturas["ID"] = ids
-    facturas["codigoBarra_solr"] = codigos_barra
+    facturas["CodigoDeBarras"] = codigos_barra
     facturas["descripcion_solr"] = descripciones_tr
     facturas["descripcion_mailisearch"] = descripciones_mailsearch
     facturas["codigoBarra_mailisearch"] = codigos_barra_mailsearch
 
     maestro_tiendas = pd.read_excel("Base de tiendas activas Tienda Registrada.xlsx", index_col=None)
     consolidado = pd.merge(facturas ,maestro_tiendas, on ="ID", how="left")
+    
+    consolidado.to_excel(f"Salida/{version_lectura}/etapa1.xlsx",
+                         index=None)
+
+    consolidado = pd.read_excel(f"Salida/{version_lectura}/etapa1.xlsx",
+                         index_col=None)
+    #################################################################################################
+    productos = pd.read_csv("Maestro_TR_2_noviembre_lite.csv", index_col=None)
+    productos = productos[["Categoria", "SubCategoria", "marca", "CodigoDeBarras"]]
+    productos["CodigoDeBarras"]= productos["CodigoDeBarras"].astype(str)
+    consolidado["CodigoDeBarras"] = consolidado["CodigoDeBarras"].astype(str)
+    archivo_merge = consolidado.merge(productos, on="CodigoDeBarras", how="left")
+    archivo_merge.rename(columns={"CodigoDeBarras":"codigoBarra_solr"}, inplace=True)
+    #archivo_merge = archivo_merge[["Categoria", "SubCategoria", "marca", ""]]
+    #################################################################################################
     consolidado.to_excel(f"Salida/{version_lectura}/Match_Solr_New_Model_textos_procesados_match_Tiendas_TR.xlsx", index=None)
+    archivo_merge.to_excel(f"Salida/{version_lectura}/data_final.xlsx", index=None)
     return consolidado
