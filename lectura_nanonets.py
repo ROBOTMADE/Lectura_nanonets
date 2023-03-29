@@ -17,7 +17,7 @@ def procesar():
             for name in files:
                 try:
                     contador+=1
-                    print (f"PORCENTAJE = {(contador*100)/26}")
+                    print (f"PORCENTAJE = {(contador*100)/3}")
                     if not "Imágenes_Feas" in path:
                         img  = os.path.join(path, name)
                         valor_random = random.rand()
@@ -38,6 +38,8 @@ def procesar():
                                 os.makedirs(ruta)
                             with open(f'{ruta}/{name.split(".")[0]}.json', 'w') as convert_file:
                                 convert_file.write(json.dumps(data))
+
+
                             resultados = data["result"][0]['prediction']
                             print (resultados)
                             cabeceras = {}
@@ -52,6 +54,14 @@ def procesar():
                                             tabla[celda["label"]] = []
                                         tabla[celda["label"]].append(celda["text"])
 
+                            len_list = [len(a) for a in tabla.values()]
+                            len_mode = max(set(len_list), key=len_list.count)
+                            columnas_a_borrar =[]
+                            for key in tabla:
+                                if len(tabla[key]) != len_mode:
+                                    columnas_a_borrar.append(key)
+                            for columna in columnas_a_borrar:
+                                tabla.pop(columna)
                             df = pd.DataFrame(tabla)
                             # longitud_mas_comun = 0
                             # longitudes =[]
@@ -62,7 +72,6 @@ def procesar():
                                 # if len(cabeceras[cabecera]) == longitud_mas_comun:
                                 #longitudes = len(cabeceras[cabecera])
                                 df[cabecera] = cabeceras[cabecera]
-                            df["ruta_factura"] = img
 
                             if 'BARRANQUILLA' in str(img).upper():
                                 df["ciudad_verdadera"] = 'BARRANQUILLA'
@@ -74,7 +83,7 @@ def procesar():
                                 df["ciudad_verdadera"] = 'MEDELLIN'
                             else:
                                 df["ciudad_verdadera"] = 'NO EXTRAIDA'
-
+                            df["ruta_factura"] = img
                             if df_final is None:
                                 df_final = df.infer_objects()
                             else:

@@ -129,25 +129,86 @@ def procesar(df):
     facturas["descripcionTR"] = math_maestro_precios_descripciones
     facturas["cbTR"] = math_maestro_precios_codigos
     #facturas.to_csv("facturas_modificado_v6.csv", sep =";")
-    facturas.to_excel(f"Salida/{version_lectura}/match_PH.xlsx")
+    facturas.to_excel(f"Salida/{version_lectura}/match.xlsx")
     return facturas
 
 def limpieza_final(df):
-    data_original = df
-    data_revisada = pd.read_excel("09-02-2023Match_Solr_New_Model_textos_procesados_match_Tiendas_TR_nuevo_ph_v2.xlsx",
-                                  index_col=None)
-    data_unida = data_original.merge(data_revisada, on="descripcion", how="left")
+    data_original = df.copy()
+    # data_revisada = pd.read_excel("09-02-2023Match_Solr_New_Model_textos_procesados_match_Tiendas_TR_nuevo_ph_v2.xlsx",
+    #                               index_col=None)
+    # data_unida = data_original.merge(data_revisada, on="descripcion", how="left")
+    #
+    # data_unida.loc[data_unida["Tipo"] == 1, "Descricion_tr_nuevo_match_ph"] = "No Encontrado"
+    # data_unida.loc[data_unida["Tipo"] == 1, "Codigos_barra_tr_nuevo_match_ph"] = "No Encontrado"
+    # data_unida.loc[data_unida["Tipo"] == 1, "Promociones_tr_nuevo_match_ph"] = "No Encontrado"
+    #
+    # data_eliminada = data_unida[data_unida["Tipo"] != 2]
+    #
+    # data_eliminada.loc[data_unida["Tipo"] == 3, "Descricion_tr_nuevo_match_ph"] = "Es de PH pero no identifico cual"
+    # data_eliminada.loc[data_unida["Tipo"] == 3, "Codigos_barra_tr_nuevo_match_ph"] = "Es de PH pero no identifico cual"
+    # data_eliminada.loc[data_unida["Tipo"] == 3, "Promociones_tr_nuevo_match_ph"] = "Es de PH pero no identifico cual"
+    ciudad_ruta =[]
+    codigo_factura = []
+    for index, row in data_original.iterrows():
+        img = row["ruta_factura"]
+        if 'BARRANQUILLA' in str(img).upper():
+            ciudad_ruta.append('BARRANQUILLA')
+        elif 'BOGOTÁ' in str(img).upper():
+            ciudad_ruta.append('BOGOTA')
+        elif 'CALI' in str(img).upper():
+            ciudad_ruta.append('CALI')
+        elif 'MEDELLÍN' in str(img).upper():
+            ciudad_ruta.append('MEDELLIN')
+        else:
+            ciudad_ruta.append('NO EXTRAIDA')
+        codigo_factura.append(img.split("-")[1].split(".")[0])
+    data_original["Código factura TR"] = codigo_factura
+    data_original["ciudad_verdadera"] = ciudad_ruta
+    lista_campos = ["ID", "Código factura TR", "NombreDeProductor", "marca", "distribuidor", "descripcion", "codigoBarra_mailisearch","cantidad", "valor_unitario","iva","iva %","descuento","total",
+                    "unidad_medida","subtotal_factura","iva_factura","descuento_factura","total_factura","fecha_factura", "ruta_factura","Bonificacion" ,"detalle_bonificaciones","Departamento",
+                    "codigo_producto", "Descricion_tr_nuevo_match_ph","Codigos_barra_tr_nuevo_match_ph", "Promociones_tr_nuevo_match_ph", "Tipo promocion", "Rollo", "PROMOCION",
+                    "Detalle Promoción","descripcion_solr","descripcion_mailisearch","Categoria", "SubCategoria", "Nombre Tienda", "Dirección", "Codigo Postal",
+                    "Pais", "Departamento", "Municipio", "Zona", "Localidad/Comuna", "Sector", "Barrio", "NSE/Estrato", "Categoría", "Ubicación", "Latitud", "Longitud", "Metros Cuadrados", "Tamaño", "Estado", "Responsable Tienda", "fecha_factura",
+                    "Código factura TR", "Cantidad pacas", "Mes factura", "Fecha mes", "Mes de recolección", "Carta",
+                    "Link Foto", "Total Pacas sin Iva", "Costo paca sin Iva", "Tipo de producto", "Producto principal",
+                    "Categoria regalada", " ", "Producto regalado", "Dinamica", "% Descuento", "Cantidad Regalada",
+                    "Costo sin iva unidad regalada", "Precio de lista Cant Regalada",
+                    "Costo del rollo con dinamica sin iva", "Rollo con iva",
+                    "Precio promedio Sell out producto principal", "Precio promedio total mercado x ciudad",
+                    "Mark down", "Mark Up", "Mark Down total mercado", "Mark Up total mercado", "Contribucion",
+                    "Rotación", "Rotacion promedio total mercado", "Tiendas vendedoras total mercado",
+                    "Contribución x Rotación Total mercado", "total_factura","numero_factura"
+                    ]
+    for campo in lista_campos:
+        if not  campo in data_original.columns:
+            data_original[campo] = ''
 
-    data_unida.loc[data_unida["Tipo"] == 1, "Descricion_tr_nuevo_match_ph"] = "No Encontrado"
-    data_unida.loc[data_unida["Tipo"] == 1, "Codigos_barra_tr_nuevo_match_ph"] = "No Encontrado"
-    data_unida.loc[data_unida["Tipo"] == 1, "Promociones_tr_nuevo_match_ph"] = "No Encontrado"
+    data_eliminada = data_original[lista_campos]
 
-    data_eliminada = data_unida[data_unida["Tipo"] != 2]
+    columnas_finales = ["ID", "Código factura TR", "Fabricante", "Marca", "Distribuidor", "Producto", "Código de barras","Cantidad", "Valor unitario monetario linea","Iva monetario linea",
+                          "Iva % linea", "Descuento línea","Valor total monetario linea","Unidad de medida", "Subtotal factura", "Iva total factura","Descuento total factura",
+                          "Valor total factura","Fecha factura", "Ruta_factura", "Bonificacion","detalle_bonificaciones","Ciudad", "Codigo producto", "Mach ph", "Codigos barra match ph",
+                          "Promociones tr match_ph", "Tipo promocion", "Rollo", "Promocion","Detalle Promoción", "Descripcion_solr","descripcion_mailisearch",
+                          "Categoria","SubCategoria", "Nombre Tienda", "Dirección", "Codigo Postal",
+                          "Pais", "Departamento", "Municipio", "Zona", "Localidad/Comuna", "Sector", "Barrio", "NSE/Estrato", "Categoría", "Ubicación", "Latitud", "Longitud", "Metros Cuadrados", "Tamaño", "Estado", "Responsable Tienda", "fecha_factura",
+                        "Código factura TR", "Cantidad pacas", "Mes factura", "Fecha mes", "Mes de recolección",
+                        "Carta",
+                        "Link Foto", "Total Pacas sin Iva", "Costo paca sin Iva", "Tipo de producto",
+                        "Producto principal",
+                        "Categoria regalada", " ", "Producto regalado", "Dinamica", "% Descuento", "Cantidad Regalada",
+                        "Costo sin iva unidad regalada", "Precio de lista Cant Regalada",
+                        "Costo del rollo con dinamica sin iva", "Rollo con iva",
+                        "Precio promedio Sell out producto principal", "Precio promedio total mercado x ciudad",
+                        "Mark down", "Mark Up", "Mark Down total mercado", "Mark Up total mercado", "Contribucion",
+                        "Rotación", "Rotacion promedio total mercado", "Tiendas vendedoras total mercado",
+                        "Contribución x Rotación Total mercado", "total_factura", "codigo de factura"
+]
+    data_eliminada.columns = columnas_finales
 
-    data_eliminada.loc[data_unida["Tipo"] == 3, "Descricion_tr_nuevo_match_ph"] = "Es de PH pero no identifico cual"
-    data_eliminada.loc[data_unida["Tipo"] == 3, "Codigos_barra_tr_nuevo_match_ph"] = "Es de PH pero no identifico cual"
-    data_eliminada.loc[data_unida["Tipo"] == 3, "Promociones_tr_nuevo_match_ph"] = "Es de PH pero no identifico cual"
-
-    data_eliminada.to_excel(f"Salida/{version_lectura}/Data_final.xlsx", index=None)
-
+    data_eliminada.to_excel(f"Salida/{version_lectura}/Data_final_consolidada_cortada.xlsx", index=None)
+    data_original.to_excel(f"Salida/{version_lectura}/Data_final_consolidada_total.xlsx", index=None)
+    print("Proceso terminado con exito")
     return data_eliminada
+
+#df= pd.read_excel(f"Salida/{version_lectura}/data_final_con_dinamicas_total.xlsx")
+#limpieza_final(df)

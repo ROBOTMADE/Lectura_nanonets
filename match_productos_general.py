@@ -4,6 +4,7 @@ import pandas as pd
 from tqdm import tqdm
 import re
 from config import *
+potenciadores = "DONKAT"
 def procesar(df):
     facturas = df
     codigos_barra = []
@@ -88,7 +89,7 @@ def procesar(df):
                     texto = palabra_meilisearch
                     print (texto)
                     textos.append(texto)
-                    response_mailisearch = client.index('TR').search(texto)
+                    response_mailisearch = client.index('TR_marzo').search(texto)
                     producto_mailisearch = response_mailisearch['hits'][0]
                     descripciones_mailsearch.append(producto_mailisearch['DescripcionLargaProducto'])
                     codigos_barra_mailsearch.append(producto_mailisearch['CodigoDeBarras'])
@@ -156,11 +157,11 @@ def procesar(df):
     consolidado.to_excel(f"Salida/{version_lectura}/etapa1.xlsx",
                          index=None)
 
-    consolidado = pd.read_excel(f"Salida/{version_lectura}/etapa1.xlsx",
-                         index_col=None)
+    #consolidado = pd.read_excel(f"Salida/{version_lectura}/etapa1.xlsx",
+    #                     index_col=None)
     #################################################################################################
-    productos = pd.read_csv("Maestro_TR_2_noviembre_lite.csv", index_col=None)
-    productos = productos[["Categoria", "SubCategoria", "marca", "CodigoDeBarras"]]
+    productos =  pd.read_csv("Maestro_TR_2_marzo_lite.csv", sep =";")
+    productos = productos[["Categoria", "SubCategoria", "marca", "CodigoDeBarras","NombreDeProductor"]]
     productos["CodigoDeBarras"]= productos["CodigoDeBarras"].astype(str)
     consolidado["CodigoDeBarras"] = consolidado["CodigoDeBarras"].astype(str)
     archivo_merge = consolidado.merge(productos, on="CodigoDeBarras", how="left")
@@ -169,4 +170,4 @@ def procesar(df):
     #################################################################################################
     consolidado.to_excel(f"Salida/{version_lectura}/Match_Solr_New_Model_textos_procesados_match_Tiendas_TR.xlsx", index=None)
     archivo_merge.to_excel(f"Salida/{version_lectura}/data_final.xlsx", index=None)
-    return consolidado
+    return archivo_merge

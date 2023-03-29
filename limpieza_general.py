@@ -1,7 +1,7 @@
 from config import *
 from tqdm import tqdm
 import pandas as pd
-def procesar(df:str):
+def procesar(df:pd.DataFrame):
     datos_nanonets = df
     for contenedor in contenedores:
         for valor in contenedores[contenedor]:
