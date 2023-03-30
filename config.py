@@ -1,4 +1,3 @@
-
 import os
 import meilisearch
 ruta_imagenes ='Sin Codificar/28'
@@ -19,9 +18,7 @@ min_len_word = 2
 stop_words_contains=["(" ,")" ,"[" ,"]","GRTS", "BONIF","PPK","GRT","CJJ","DESCRIPCIÓN"]
 palabras_bonificacion =["GTS","GTR", "GRTS","GRATIS","BONIF","BONI","PAGUE","LLEVE","OBSEQUIO","OFERTA","OFER","+","PG","LLV","PAG","GT","OFT","Bonificacion","OFE"]
 contenedores = {"codigo_producto":["CODIGO", "LINEAS"], "descripcion":["PRODUCTO", "DESCRIPCION", "SERVICIO", "ARTICULO","DESCRIPCIÓN"], "cantidad":["CANT"]}
-
 ratio_lectura= 1
-
 columnas_tabla = ["Precio", "cantidad", "codigo_producto", "descuento", "iva", "total", "unidad_medida","valor_unitario"]
 
 version_lectura = "28 marzo"

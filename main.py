@@ -1,6 +1,6 @@
 import match_productos_general
 import limpieza_general
-from Lectura_facturas.git.Lectura_nanonets import match_papel_higienico
+import match_papel_higienico
 import arreglo_PH
 import dinamicas_promocionales
 import normalizacion_numericos
