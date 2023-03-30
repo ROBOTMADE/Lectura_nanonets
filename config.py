@@ -21,4 +21,4 @@ contenedores = {"codigo_producto":["CODIGO", "LINEAS"], "descripcion":["PRODUCTO
 ratio_lectura= 1
 columnas_tabla = ["Precio", "cantidad", "codigo_producto", "descuento", "iva", "total", "unidad_medida","valor_unitario"]
 
-version_lectura = "28 marzo"
+version_lectura = "27 marzo"

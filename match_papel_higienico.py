@@ -131,9 +131,42 @@ def procesar(df):
     #facturas.to_csv("facturas_modificado_v6.csv", sep =";")
     facturas.to_excel(f"Salida/{version_lectura}/match.xlsx")
     return facturas
+def validacion_unidades_valor_igual_a_total(df):
+    campos_multiplicacion = ["cantidad", "valor_unitario"]
+    total = "total"
+    df["validacion unidades x valor unitario igual a total"] = ""
+    for index, row in df.iterrows():
+        if row[campos_multiplicacion[0]] * row[campos_multiplicacion[1]] == row[total]:
+            df.loc[index, "validacion unidades x valor unitario igual a total"] = 1
+        else:
+            df.loc[index, "validacion unidades x valor unitario igual a total"] = 0
+    return df
+def suma_totales_contra_total_factura(data_factura, data_completa, ruta_factura):
+    campo_total_linea = "total"
+    campo_total_factura= "valor_total_factura"
+    if campo_total_factura in data_factura.columns:
+        total_factura = data_factura[campo_total_factura].unique().tolist()[0]
+        suma_factura = data_factura[campo_total_linea].sum()
+        a = tuple(data_factura.index.values.tolist())
+        data_completa_index = pd.Index(data_factura.index.tolist(), name="foo")
+        if suma_factura == total_factura:
+            data_completa.loc[data_completa["ruta_factura"] == ruta_factura, "Comprobacion_total_linea_igual_a_total_factura"] = 1
+        else:
+            data_completa.loc[data_completa["ruta_factura"] == ruta_factura, "Comprobacion_total_linea_igual_a_total_factura"] = 0
+    else:
+        data_completa.loc[data_completa["ruta_factura"] == ruta_factura, "Comprobacion_total_linea_igual_a_total_factura"] = 0
+
+    return data_completa
 
 def limpieza_final(df):
-    data_original = df.copy()
+    data_original = validacion_unidades_valor_igual_a_total(df)
+    facturas_unicas = data_original["ruta_factura"].unique().tolist()
+    df["Comprobacion_total_linea_igual_a_total_factura"] = ""
+    for unica in facturas_unicas:
+        filter=data_original["ruta_factura"] == unica
+        data_factura = data_original[filter]
+        data_original = suma_totales_contra_total_factura(data_factura, data_original, unica)
+
     # data_revisada = pd.read_excel("09-02-2023Match_Solr_New_Model_textos_procesados_match_Tiendas_TR_nuevo_ph_v2.xlsx",
     #                               index_col=None)
     # data_unida = data_original.merge(data_revisada, on="descripcion", how="left")
@@ -165,7 +198,7 @@ def limpieza_final(df):
     data_original["Código factura TR"] = codigo_factura
     data_original["ciudad_verdadera"] = ciudad_ruta
     lista_campos = ["ID", "Código factura TR", "NombreDeProductor", "marca", "distribuidor", "descripcion", "codigoBarra_mailisearch","cantidad", "valor_unitario","iva","iva %","descuento","total",
-                    "unidad_medida","subtotal_factura","iva_factura","descuento_factura","total_factura","fecha_factura", "ruta_factura","Bonificacion" ,"detalle_bonificaciones","Departamento",
+                    "unidad_medida","subtotal_factura","iva_factura","descuento_factura","valor_total_factura","fecha_factura", "ruta_factura","Bonificacion" ,"detalle_bonificaciones","Departamento",
                     "codigo_producto", "Descricion_tr_nuevo_match_ph","Codigos_barra_tr_nuevo_match_ph", "Promociones_tr_nuevo_match_ph", "Tipo promocion", "Rollo", "PROMOCION",
                     "Detalle Promoción","descripcion_solr","descripcion_mailisearch","Categoria", "SubCategoria", "Nombre Tienda", "Dirección", "Codigo Postal",
                     "Pais", "Departamento", "Municipio", "Zona", "Localidad/Comuna", "Sector", "Barrio", "NSE/Estrato", "Categoría", "Ubicación", "Latitud", "Longitud", "Metros Cuadrados", "Tamaño", "Estado", "Responsable Tienda", "fecha_factura",
@@ -177,8 +210,8 @@ def limpieza_final(df):
                     "Precio promedio Sell out producto principal", "Precio promedio total mercado x ciudad",
                     "Mark down", "Mark Up", "Mark Down total mercado", "Mark Up total mercado", "Contribucion",
                     "Rotación", "Rotacion promedio total mercado", "Tiendas vendedoras total mercado",
-                    "Contribución x Rotación Total mercado", "total_factura","numero_factura"
-                    ]
+                    "Contribución x Rotación Total mercado", "valor_total_factura","numero_factura", "validacion unidades x valor unitario igual a total"
+                    ,"Comprobacion_total_linea_igual_a_total_factura"]
     for campo in lista_campos:
         if not  campo in data_original.columns:
             data_original[campo] = ''
@@ -201,7 +234,8 @@ def limpieza_final(df):
                         "Precio promedio Sell out producto principal", "Precio promedio total mercado x ciudad",
                         "Mark down", "Mark Up", "Mark Down total mercado", "Mark Up total mercado", "Contribucion",
                         "Rotación", "Rotacion promedio total mercado", "Tiendas vendedoras total mercado",
-                        "Contribución x Rotación Total mercado", "total_factura", "codigo de factura"
+                        "Contribución x Rotación Total mercado", "valor_total_factura", "codigo de factura", "validacion unidades x valor unitario igual a total"
+                        ,"Comprobacion_total_linea_igual_a_total_factura"
 ]
     data_eliminada.columns = columnas_finales
 
