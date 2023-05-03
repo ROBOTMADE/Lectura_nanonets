@@ -239,7 +239,11 @@ def limpieza_final(df):
 ]
     data_eliminada.columns = columnas_finales
 
-    data_eliminada.to_excel(f"Salida/{version_lectura}/Data_final_consolidada_cortada.xlsx", index=None)
+    data_eliminada["codigo de factura"] = data_eliminada["codigo de factura"].replace(replace_codigo_factura)
+    data_eliminada["Distribuidor"] = data_eliminada["Distribuidor"].replace(replace_distribuidores)
+    data_eliminada["Iva % linea"] = data_eliminada["Iva % linea"].replace(replace_iva_linea)
+    #data_eliminada["GUID"] =
+    data_eliminada.to_excel(f"Salida/{version_lectura}/Data_final_consolidada_cortada.xlsx", index=None, encoding= "iso8859-1")
     data_original.to_excel(f"Salida/{version_lectura}/Data_final_consolidada_total.xlsx", index=None)
     print("Proceso terminado con exito")
     return data_eliminada

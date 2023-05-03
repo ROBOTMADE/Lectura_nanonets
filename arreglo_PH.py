@@ -77,5 +77,5 @@ def procesar (df):
     #---------------------------------------------------------------------------------------------------------------------
     archivo.to_excel(f"Salida/{version_lectura}/Match_Solr_New_Model_textos_procesados_match_Tiendas_TR_nuevo_ph_v{version_lectura}.xlsx", index=None)
     archivo_merge.to_excel(f"Salida/{version_lectura}/Match_Solr_New_Model_textos_procesados_match_Tiendas_TR_nuevo_ph_v{version_lectura}.xlsx", index=None)
-    return archivo_merge
+    return archivo
 #---------------------------------------------------------------------------------------------------------------------

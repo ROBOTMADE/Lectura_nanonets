@@ -1,8 +1,7 @@
-import datetime
+
 
 import pandas as pd
 import re
-from config import *
 from dateutil import parser
 diccionario_meses = {
     "ENE" : "01",
@@ -22,14 +21,14 @@ diccionario_meses = {
 }
 def procesar(df):
     valores_numericos = ["cantidad", "total", "iva_factura", "valor_total_factura", "subtotal_factura", "iva",
-                         "descuento", "valor_unitario"]
+                         "descuento", "valor_unitario", ""]
     valores_fecha = ["fecha_factura"]
     combinacion_formatos = ""
     for columna_numerica in valores_numericos:
         if not columna_numerica in df.columns:
             valores_numericos.remove(columna_numerica)
         else:
-            df[columna_numerica].fillna(0, inplace=True)
+            df[columna_numerica].fillna(-1, inplace=True)
 
 
     for index, row in df.iterrows():
@@ -61,10 +60,10 @@ def procesar(df):
                 valor = "-1"
             try:
                 valor_float = float(valor)
-
-                if valor_float >1000000 and index > 795:
-                    print ()
+                df.loc[index, columna_numerica + "_original"] = str(row[columna_numerica])
                 df.loc[index, columna_numerica] = valor_float
+
+
             except Exception as e:
                 print(e)
         for columna_fecha in valores_fecha:

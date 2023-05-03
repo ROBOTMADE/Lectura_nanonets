@@ -67,13 +67,13 @@ def procesar (df):
                             dinamica = "Bonificacion calculada "+ str(row["descripcion"]).split(inicio)[0] +" X "+ str(cantidad_real)
                             detalle_bonificaciones.append(dinamica)
                         else:
-                            if str(row["total"]) in ['0', '0.00', '0.0'] and not pd.isna(str(row["total_original"])):
+                            if str(row["total"]) in ['0', '0.00', '0.0',0] and not row["total_original"] == -1:
                                 insertar = True
                                 i = 1
                                 index_a_borrar.append(index)
                                 dinamica = str(row["descripcion"])
                                 while insertar:
-                                    if index + i  != data.shape[0] and str(data.loc[index + i, "total"]) in ['0', '0.00', '0.0', '0.008'] :
+                                    if index + i  != data.shape[0] and str(data.loc[index + i, "total"]) in ['0', '0.00', '0.0', '0.008', 0] :
                                         dinamica += " + " + data.loc[index + i, "descripcion"]
                                         index_a_borrar.append(index+i)
                                         i+=1
@@ -85,7 +85,7 @@ def procesar (df):
                                     detalle_bonificaciones[-1] = detalle_bonificaciones[-1] + " + " + dinamica
                             else:
                                 detalle_bonificaciones.append("No aplica dinamica")
-            except:
+            except Exception as e:
                 detalle_bonificaciones.append("No aplica dinamica")
         data.drop(index_a_borrar, inplace= True)
         data["detalle_bonificaciones"] = detalle_bonificaciones
@@ -96,5 +96,5 @@ def procesar (df):
         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
         print(exc_type, fname, exc_tb.tb_lineno)
         print(str(e))
-#df= pd.read_excel(f"Salida/{version_lectura}/Data_final_consolidada_total.xlsx")
+#df= pd.read_excel(f"Salida/{version_lectura}/data_final.xlsx")
 #procesar(df)

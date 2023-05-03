@@ -4,9 +4,10 @@ import pandas as pd
 def procesar(df:pd.DataFrame):
     datos_nanonets = df
     for contenedor in contenedores:
-        for valor in contenedores[contenedor]:
-            #datos_nanonets = datos_nanonets.query(f"not {contenedor}.str.contains('{valor}')", engine='python')
-            datos_nanonets = datos_nanonets[~datos_nanonets[contenedor].astype(str).str.upper().str.contains(valor.upper())]
+        if contenedor in datos_nanonets.columns:
+            for valor in contenedores[contenedor]:
+                #datos_nanonets = datos_nanonets.query(f"not {contenedor}.str.contains('{valor}')", engine='python')
+                datos_nanonets = datos_nanonets[~datos_nanonets[contenedor].astype(str).str.upper().str.contains(valor.upper())]
     ultima_factura=""
     for index, row in tqdm(datos_nanonets.iterrows(), total= datos_nanonets.shape[0]):
         if ultima_factura != row["ruta_factura"]:

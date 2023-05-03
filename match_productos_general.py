@@ -16,6 +16,8 @@ def procesar(df):
 
     for index, row in tqdm(facturas.iterrows(), total= facturas.shape[0]):
             bandera_continuar= True
+            if index == 5:
+                print ()
             try:
                 palabra_meilisearch = ""
                 descripcion = row["descripcion"]
@@ -65,7 +67,9 @@ def procesar(df):
                 for i , palabra in enumerate(descripcion_limpia.split()):
                     palabra_limpia = palabra.upper().strip()
                     for replace in replaces:
-                        palabra_limpia=palabra_limpia.replace(replace, replaces[replace])
+                        if palabra_limpia == replace:
+                            palabra_limpia = replaces[replace]
+                        #palabra_limpia=palabra_limpia.replace(replace, replaces[replace])
                     if not str(palabra_limpia).isnumeric():
                         for stop_word in stop_words_contains:
                             palabra_limpia = palabra_limpia.replace(stop_word, "")
@@ -87,7 +91,7 @@ def procesar(df):
                         query += f'desc_long: "{palabra_limpia}", '
                 try:
                     texto = palabra_meilisearch
-                    print (texto)
+                    #print (texto)
                     textos.append(texto)
                     response_mailisearch = client.index('TR_marzo').search(texto)
                     producto_mailisearch = response_mailisearch['hits'][0]
@@ -111,8 +115,12 @@ def procesar(df):
                     response_dict = json.loads(response.text)
                     productor = response_dict["response"]["docs"]
                     producto_similar = productor[0]
-                    codigos_barra.append(producto_similar['idproduct'])
+                    #codigos_barra.append(producto_similar['idproduct'])
+
                     descripciones_tr.append(producto_similar['desc_long'])
+                    if codigos_barra_mailsearch[-1] == "NO ENCONTRADO":
+                        codigos_barra_mailsearch[-1] = producto_similar['idproduct']
+                        descripciones_mailsearch[-1] =producto_similar['desc_long']
                 except Exception as e:
                     # response_dict = json.loads(response.text)
                     codigos_barra.append("NO ENCONTRADO")
@@ -146,7 +154,7 @@ def procesar(df):
 
     facturas["texto_procesado"] = textos
     facturas["ID"] = ids
-    facturas["CodigoDeBarras"] = codigos_barra
+    facturas["CodigoDeBarras"] = codigos_barra_mailsearch
     facturas["descripcion_solr"] = descripciones_tr
     facturas["descripcion_mailisearch"] = descripciones_mailsearch
     facturas["codigoBarra_mailisearch"] = codigos_barra_mailsearch
@@ -160,7 +168,7 @@ def procesar(df):
     #consolidado = pd.read_excel(f"Salida/{version_lectura}/etapa1.xlsx",
     #                     index_col=None)
     #################################################################################################
-    productos =  pd.read_csv("Maestro_TR_2_marzo_lite.csv", sep =";")
+    productos =  pd.read_csv("Maestro_TR_2_marzo_lite.csv", sep =";", encoding="iso8859-1")
     productos = productos[["Categoria", "SubCategoria", "marca", "CodigoDeBarras","NombreDeProductor"]]
     productos["CodigoDeBarras"]= productos["CodigoDeBarras"].astype(str)
     consolidado["CodigoDeBarras"] = consolidado["CodigoDeBarras"].astype(str)
