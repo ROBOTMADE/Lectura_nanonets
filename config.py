@@ -1,6 +1,6 @@
 import os
 import meilisearch
-ruta_imagenes ='Sin Codificar/25 abril'
+ruta_imagenes ='Sin Codificar'
 folder_to_proccess =  os.listdir(ruta_imagenes)
 model_id= "347e4971-65d2-4c4b-bac8-9b5b3634e28c"
 url_nanonets = f'https://app.nanonets.com/api/v2/OCR/Model/{model_id}/LabelFile/'
@@ -42,4 +42,4 @@ replace_iva_linea = {"%":"" , ".00":"", "* ":""}
 ratio_lectura= 1
 columnas_tabla = ["Precio", "cantidad", "codigo_producto", "descuento", "iva", "total", "unidad_medida","valor_unitario"]
 
-version_lectura = "25 abril"
+version_lectura = "pruebatq"
