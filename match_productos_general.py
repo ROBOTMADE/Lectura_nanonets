@@ -144,19 +144,17 @@ def procesar(df):
                         id = chars.replace("ID", "")
                     except:
                         try:
-    
                             expresion = "VP[0-9]+"
                             chars = re.findall(expresion, ruta_imagen)[0]
                             id = chars.replace("VP","")
-                            
                         except:
                             try:
                                 expresions = "CC [0-9]+"
                                 chars = re.findall(expresion, ruta_imagen)[0]
                                 id = chars.split()[1]
                             except:
-                                    id="0"
-                            ids.append(int(id))
+                                id="0"
+            ids.append(int(id))
 
     facturas["texto_procesado"] = textos
     facturas["ID"] = ids

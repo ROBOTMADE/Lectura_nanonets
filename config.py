@@ -42,4 +42,4 @@ replace_iva_linea = {"%":"" , ".00":"", "* ":""}
 ratio_lectura= 1
 columnas_tabla = ["Precio", "cantidad", "codigo_producto", "descuento", "iva", "total", "unidad_medida","valor_unitario"]
 
-version_lectura = "pruebatq"
+version_lectura = "Consolidado182324mayo"
