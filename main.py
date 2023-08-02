@@ -8,8 +8,8 @@ import lectura_nanonets
 from config import *
 import pandas as pd
 ###########################################################
-datos_nanonets = lectura_nanonets.procesar()
-#datos_nanonets =  pd.read_excel(f"Salida/informe+consolidado19julio/lectura_nanonets.xlsx", index_col=None)
+#datos_nanonets = lectura_nanonets.procesar()
+datos_nanonets =  pd.read_excel(f"Salida/informe+consolidado31julio/lectura_nanonets.xlsx", index_col=None)
 limpieza_general = limpieza_general.procesar(datos_nanonets)
 normalizacion = normalizacion_numericos.procesar(limpieza_general)
 datos_ph = arreglo_PH.procesar(limpieza_general)
