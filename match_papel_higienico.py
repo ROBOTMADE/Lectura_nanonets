@@ -72,7 +72,8 @@ facturas["Categoria"]
 print ()
 """
 def procesar(df):
-    categorias = pd.read_csv("Categorias.csv", sep=";")
+    categorias = pd.read_csv("Categorias.csv", sep=";", encoding="ISO-8859-1")
+
     categorias = categorias[~pd.isna(categorias["SubCategoria"])]
     categorias = categorias[~pd.isna(categorias["DescripcionLargaProducto"])]
     precios = pd.read_excel("Precio promedio Papel higienico septiembre-octubre 2022.xlsx", index_col=None)
@@ -135,21 +136,34 @@ def validacion_unidades_valor_igual_a_total(df):
     campos_multiplicacion = ["cantidad", "valor_unitario"]
     total = "total"
     df["validacion unidades x valor unitario igual a total"] = ""
+    
     for index, row in df.iterrows():
-        if row[campos_multiplicacion[0]] * row[campos_multiplicacion[1]] == row[total]:
-            df.loc[index, "validacion unidades x valor unitario igual a total"] = 1
-        else:
+        try:
+            valor1 = float(row[campos_multiplicacion[0]])  # Convertir a número
+            valor2 = float(row[campos_multiplicacion[1]])  # Convertir a número
+            total_value = float(row[total])  # Convertir a número
+
+            if valor1 * valor2 == total_value:
+                df.loc[index, "validacion unidades x valor unitario igual a total"] = 1
+            else:
+                df.loc[index, "validacion unidades x valor unitario igual a total"] = 0
+        except ValueError:
             df.loc[index, "validacion unidades x valor unitario igual a total"] = 0
+
     return df
+
 def suma_totales_contra_total_factura(data_factura, data_completa, ruta_factura):
     campo_total_linea = "total"
-    campo_total_factura= "valor_total_factura"
+    campo_total_factura = "valor_total_factura"
+    
     if campo_total_factura in data_factura.columns:
-        total_factura = data_factura[campo_total_factura].unique().tolist()[0]
-        suma_factura = data_factura[campo_total_linea].sum()
+        total_factura = str(data_factura[campo_total_factura].unique()[0])  # Convertir a cadena
+        suma_factura = data_factura[campo_total_linea].astype(str).sum()  # Convertir a cadena antes de la suma
+        suma_factura_str = str(suma_factura)  # Convertir a cadena
         a = tuple(data_factura.index.values.tolist())
         data_completa_index = pd.Index(data_factura.index.tolist(), name="foo")
-        if suma_factura == total_factura:
+        
+        if suma_factura_str == total_factura:  # Comparar cadenas
             data_completa.loc[data_completa["ruta_factura"] == ruta_factura, "Comprobacion_total_linea_igual_a_total_factura"] = 1
         else:
             data_completa.loc[data_completa["ruta_factura"] == ruta_factura, "Comprobacion_total_linea_igual_a_total_factura"] = 0
@@ -157,6 +171,7 @@ def suma_totales_contra_total_factura(data_factura, data_completa, ruta_factura)
         data_completa.loc[data_completa["ruta_factura"] == ruta_factura, "Comprobacion_total_linea_igual_a_total_factura"] = 0
 
     return data_completa
+
 
 def limpieza_final(df):
     data_original = validacion_unidades_valor_igual_a_total(df)
@@ -243,7 +258,9 @@ def limpieza_final(df):
     data_eliminada["Distribuidor"] = data_eliminada["Distribuidor"].replace(replace_distribuidores)
     data_eliminada["Iva % linea"] = data_eliminada["Iva % linea"].replace(replace_iva_linea)
     #data_eliminada["GUID"] =
-    data_eliminada.to_excel(f"Salida/{version_lectura}/Data_final_consolidada_cortada.xlsx", index=None, encoding= "iso8859-1")
+    #data_eliminada.to_excel(f"Salida/{version_lectura}/Data_final_consolidada_cortada.xlsx", index=None, encoding= "iso8859-1")
+    data_eliminada.to_excel(f"Salida/{version_lectura}/Data_final_consolidada_cortada.xlsx", index=None)
+
     data_original.to_excel(f"Salida/{version_lectura}/Data_final_consolidada_total.xlsx", index=None)
     print("Proceso terminado con exito")
     return data_eliminada

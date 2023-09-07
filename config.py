@@ -40,6 +40,8 @@ replace_codigo_factura = {
 replace_iva_linea = {"%":"" , ".00":"", "* ":""}
 
 ratio_lectura= 1
-columnas_tabla = ["Precio", "cantidad", "codigo_producto", "descuento", "iva", "total", "unidad_medida","valor_unitario"]
 
-version_lectura = "informe+consolidado31julio"
+# Debemos agregar los label que faltan de nanonets aqui (Caro14-08-2023::7-32)
+columnas_tabla = ["Precio","Precio U + IVA", "cantidad", "codigo_producto","descripcion", "descuento", "iva","iva %", "total", "unidad_medida","valor_unitario"]
+# Buscar el .py donde (lectura_nanonets) necesito identificar campos vacios nuevos y llenarlos con null o algo
+version_lectura = "informe+consolidado29agosto2023"

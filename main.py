@@ -9,11 +9,11 @@ from config import *
 import pandas as pd
 ###########################################################
 #datos_nanonets = lectura_nanonets.procesar()
-datos_nanonets =  pd.read_excel(f"Salida/informe+consolidado31julio/lectura_nanonets.xlsx", index_col=None)
+datos_nanonets =  pd.read_excel(f"Salida/informe+consolidado29agosto2023/lectura_nanonets.xlsx", index_col=None)
 limpieza_general = limpieza_general.procesar(datos_nanonets)
 normalizacion = normalizacion_numericos.procesar(limpieza_general)
 datos_ph = arreglo_PH.procesar(limpieza_general)
-#datos_ph = match_papel_higienico.procesar(datos_nanonets)
+datos_ph = match_papel_higienico.procesar(datos_nanonets)
 datos_general = match_productos_general.procesar(datos_ph)
 data_con_dinamicas = dinamicas_promocionales.procesar(datos_general)
 

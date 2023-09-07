@@ -1,37 +1,55 @@
-from config import *
-from tqdm import tqdm
+import os
 import pandas as pd
-def procesar(df:pd.DataFrame):
-    datos_nanonets = df
+from tqdm import tqdm
+from config import *
+
+def procesar(df: pd.DataFrame):
+    # Copiar los datos del DataFrame
+    datos_nanonets = df.copy()
+
+    # Filtrar valores no deseados de los contenedores
     for contenedor in contenedores:
         if contenedor in datos_nanonets.columns:
             for valor in contenedores[contenedor]:
-                #datos_nanonets = datos_nanonets.query(f"not {contenedor}.str.contains('{valor}')", engine='python')
                 datos_nanonets = datos_nanonets[~datos_nanonets[contenedor].astype(str).str.upper().str.contains(valor.upper())]
-    ultima_factura=""
-    for index, row in tqdm(datos_nanonets.iterrows(), total= datos_nanonets.shape[0]):
+
+    # Procesar datos de factura específica
+    ultima_factura = ""
+    for index, row in tqdm(datos_nanonets.iterrows(), total=datos_nanonets.shape[0]):
         if ultima_factura != row["ruta_factura"]:
             ultima_factura = row["ruta_factura"]
-            #datos_factura_especifica = datos_nanonets.query(f"numero_factura == '{row['numero_factura']}'")
             datos_factura_especifica = datos_nanonets[datos_nanonets["ruta_factura"].astype(str) == row['ruta_factura']]
             print()
+
             for index_factura, row_factura in datos_factura_especifica.iterrows():
                 try:
                     borrar = True
                     for columna in columnas_tabla:
-                        if columna in datos_factura_especifica.columns:
-                            if not pd.isna(row_factura[columna]):
-                                borrar = False
-                                break
+                        if columna in datos_factura_especifica.columns and not pd.isna(row_factura[columna]):
+                            borrar = False
+                            break
+
                     if borrar:
                         datos_nanonets.loc[index_factura - 1, "descripcion"] = f'{datos_nanonets.loc[index_factura - 1, "descripcion"]}{row_factura["descripcion"]}'
-                        datos_nanonets.drop([index_factura], inplace= True)
+                        datos_nanonets.drop([index_factura], inplace=True)
                 except Exception as e:
-                    print (e)
-    datos_nanonets = datos_nanonets[datos_nanonets["descripcion"].astype(str).str.len() > 2]
-    if not os.path.isdir(f"Salida/{version_lectura}"):
-        # if the demo_folder2 directory is
-        # not present then create it.
-        os.makedirs(f"Salida/{version_lectura}")
-    datos_nanonets.to_excel(f"Salida/{version_lectura}/limpieza_general.xlsx", index = None)
+                    print(e)
+
+    # Verificar si la columna "descripcion" está presente
+    if "descripcion" in datos_nanonets.columns:
+        datos_nanonets = datos_nanonets[datos_nanonets["descripcion"].astype(str).str.len() > 2]
+
+    # Crear directorio de salida si no existe
+    output_directory = f"Salida/{version_lectura}"
+    if not os.path.isdir(output_directory):
+        os.makedirs(output_directory)
+
+    # Guardar resultados en un archivo Excel
+    output_file = os.path.join(output_directory, "limpieza_general.xlsx")
+    datos_nanonets.to_excel(output_file, index=None)
+
     return datos_nanonets
+
+# Ejemplo de uso
+# df = ... # Cargar tu DataFrame
+# procesado = procesar(df)
